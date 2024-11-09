@@ -1,4 +1,5 @@
 function love.load()
+    math.randomseed(os.time())
 
     sprites = {}
     sprites.background = love.graphics.newImage('sprites/background.png')
@@ -9,6 +10,8 @@ function love.load()
     WINDOW_WIDTH = love.graphics.getWidth()
     WINDOW_HEIGHT = love.graphics.getHeight()
 
+    menuFont = love.graphics.newFont(30)
+
     player = {}
     player.x = WINDOW_WIDTH / 2
     player.y = WINDOW_HEIGHT / 2
@@ -17,29 +20,32 @@ function love.load()
     zombies = {}
     bullets = {}
 
-    gameState = 2
+    gameState = 1
+    score = 0
     maxTime = 2
     timer = maxTime
     
 end
 
 function love.update(dt)
-    -- move Right
-    if love.keyboard.isDown('d') then
-        player.x = player.x + player.speed * dt
-    end
-    -- move Left
-    if love.keyboard.isDown('a') then
-        player.x = player.x - player.speed * dt
-    end
+    if gameState == 2 then
+        -- move Right
+        if love.keyboard.isDown('d') and player.x < WINDOW_WIDTH then
+            player.x = player.x + player.speed * dt
+        end
+        -- move Left
+        if love.keyboard.isDown('a') and player.x > 0 then
+            player.x = player.x - player.speed * dt
+        end
 
-    -- move Up
-    if love.keyboard.isDown('w') then
-        player.y = player.y - player.speed * dt
-    end
-    -- move Down
-    if love.keyboard.isDown('s') then
-        player.y = player.y + player.speed * dt
+        -- move Up
+        if love.keyboard.isDown('w') and player.y > 0 then
+            player.y = player.y - player.speed * dt
+        end
+        -- move Down
+        if love.keyboard.isDown('s') and player.y < WINDOW_HEIGHT then
+            player.y = player.y + player.speed * dt
+        end
     end
 
     -- IMPORTANT: make enemies follow the player and detect collision
@@ -51,6 +57,8 @@ function love.update(dt)
             for i,z in ipairs(zombies) do
                 zombies[i] = nil
                 gameState = 1
+                player.x = WINDOW_WIDTH/2
+                player.y = WINDOW_HEIGHT/2
             end
         end
     end
@@ -72,6 +80,7 @@ function love.update(dt)
             if distanceBetween(z.x, z.y, b.x, b.y) < 20 then
                 z.dead = true
                 b.dead = true
+                score = score + 1
             end
         end
     end
@@ -101,6 +110,13 @@ end
 
 function love.draw()
     love.graphics.draw(sprites.background, 0, 0)
+
+    if gameState == 1 then
+        love.graphics.setFont(menuFont)
+        love.graphics.printf('Click anywhere to begin!', 0, 50, WINDOW_WIDTH, 'center')
+    end
+
+    love.graphics.printf('Score: ' .. score, 0, WINDOW_HEIGHT - 100, WINDOW_WIDTH, 'center')
     love.graphics.draw(sprites.player, player.x, player.y, playerMouseAngle(), nil, nil, sprites.player:getWidth()/2, sprites.player:getHeight()/2)
 
     for i, z in ipairs(zombies) do
@@ -110,6 +126,7 @@ function love.draw()
     for i,b in ipairs(bullets) do
         love.graphics.draw(sprites.bullet, b.x, b.y, nil, 0.5, nil, sprites.bullet:getWidth()/2, sprites.bullet:getHeight()/2)
     end
+
 end
 
 function love.keypressed(key)
@@ -121,8 +138,13 @@ function love.keypressed(key)
 end
 
 function love.mousepressed(x, y, button)
-    if button == 1 then
+    if button == 1 and gameState == 2 then
         spawnBullet()
+    elseif button == 1 and gameState == 1 then
+        gameState = 2
+        maxTime = 2
+        timer = maxTime
+        score = 0
     end
 end
 
