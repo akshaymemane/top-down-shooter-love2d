@@ -60,6 +60,28 @@ function love.update(dt)
             table.remove(bullets, i)
         end
     end
+
+    -- mark zombies dead and bullets dead if they are hit
+    for i,z in ipairs(zombies) do
+        for j,b in ipairs(bullets) do
+            if distanceBetween(z.x, z.y, b.x, b.y) < 20 then
+                z.dead = true
+                b.dead = true
+            end
+        end
+    end
+
+    for i=#zombies, 1, -1 do
+        if zombies[i].dead then
+            table.remove(zombies, i)
+        end
+    end
+
+    for i=#bullets, 1, -1 do
+        if bullets[i].dead then
+            table.remove(bullets, i)
+        end
+    end
 end
 
 function love.draw()
@@ -100,6 +122,7 @@ function spawnZombie()
     zombie.x = math.random(0, love.graphics.getWidth())
     zombie.y = math.random(0, love.graphics.getHeight())
     zombie.speed = 125
+    zombie.dead = false
 
     table.insert(zombies, zombie)
 end
@@ -110,6 +133,7 @@ function spawnBullet()
     bullet.y = player.y
     bullet.speed = 500
     bullet.direction = playerMouseAngle()
+    bullet.dead = false
 
     table.insert(bullets, bullet)
 end
