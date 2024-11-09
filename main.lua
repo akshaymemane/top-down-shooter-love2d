@@ -16,6 +16,10 @@ function love.load()
 
     zombies = {}
     bullets = {}
+
+    gameState = 2
+    maxTime = 2
+    timer = maxTime
     
 end
 
@@ -38,7 +42,7 @@ function love.update(dt)
         player.y = player.y + player.speed * dt
     end
 
-    -- IMPORTANT: make enemies follow the player
+    -- IMPORTANT: make enemies follow the player and detect collision
     for i,z in ipairs(zombies) do
         z.x = z.x + (math.cos(ZombiePlayerAngle(z)) * (z.speed * dt))
         z.y = z.y + (math.sin(ZombiePlayerAngle(z)) * (z.speed * dt))
@@ -46,6 +50,7 @@ function love.update(dt)
         if distanceBetween(z.x, z.y, player.x, player.y) < 30 then
             for i,z in ipairs(zombies) do
                 zombies[i] = nil
+                gameState = 1
             end
         end
     end
@@ -82,6 +87,16 @@ function love.update(dt)
             table.remove(bullets, i)
         end
     end
+
+    if gameState == 2 then
+        timer = timer - dt
+
+        if timer < 0 then
+            spawnZombie()
+            maxTime = 0.95 * maxTime    -- increase enemy spawnTime
+            timer = maxTime
+        end
+    end
 end
 
 function love.draw()
@@ -100,6 +115,8 @@ end
 function love.keypressed(key)
     if key == 'space' then
         spawnZombie()
+    elseif key == 'escape' then
+        love.quit()
     end
 end
 
@@ -118,11 +135,28 @@ function ZombiePlayerAngle(enemy)
 end
 
 function spawnZombie()
+
+    
     local zombie = {}
-    zombie.x = math.random(0, love.graphics.getWidth())
-    zombie.y = math.random(0, love.graphics.getHeight())
+    zombie.x = 0
+    zombie.y = 0
     zombie.speed = 125
     zombie.dead = false
+    
+    local side = math.random(1, 4)      -- sides 1,2,3,4
+    if side == 1 then
+        zombie.x = -30
+        zombie.y = math.random(0, love.graphics.getHeight())
+    elseif side == 2 then
+        zombie.x = love.graphics.getWidth() + 30
+        zombie.y = math.random(0, love.graphics.getHeight())
+    elseif side == 3 then
+        zombie.x = math.random(0, love.graphics.getHeight())
+        zombie.y = -30
+    elseif side == 4 then
+        zombie.x = math.random(0, love.graphics.getHeight())
+        zombie.y = love.graphics.getHeight() + 30
+    end
 
     table.insert(zombies, zombie)
 end
