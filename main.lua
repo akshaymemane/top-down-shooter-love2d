@@ -130,10 +130,12 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    if key == 'space' then
-        spawnZombie()
-    elseif key == 'escape' then
-        love.quit()
+    if key == 'escape' then
+        love.event.quit()
+    elseif key == 'enter' or key == 'return' then
+        if gameState == 1 then
+            gameState = 2
+        end
     end
 end
 
