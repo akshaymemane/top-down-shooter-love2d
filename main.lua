@@ -1,3 +1,4 @@
+require 'movements'
 function love.load()
     math.randomseed(os.time())
 
@@ -29,23 +30,7 @@ end
 
 function love.update(dt)
     if gameState == 2 then
-        -- move Right
-        if love.keyboard.isDown('d') and player.x < WINDOW_WIDTH then
-            player.x = player.x + player.speed * dt
-        end
-        -- move Left
-        if love.keyboard.isDown('a') and player.x > 0 then
-            player.x = player.x - player.speed * dt
-        end
-
-        -- move Up
-        if love.keyboard.isDown('w') and player.y > 0 then
-            player.y = player.y - player.speed * dt
-        end
-        -- move Down
-        if love.keyboard.isDown('s') and player.y < WINDOW_HEIGHT then
-            player.y = player.y + player.speed * dt
-        end
+        loadMovements(player, dt)
     end
 
     -- IMPORTANT: make enemies follow the player and detect collision
